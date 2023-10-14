@@ -1,27 +1,31 @@
 import inquirer from "inquirer";
-import pedidos from "./requisicoes.js";
+import reqs from "./requisicoes.js";
+
 const menu = [
   {
     type: "list",
     name: "choice",
     message: "Escolha uma opção:",
-    choices: ["Nova requisição", "Listar  as requisições", "Exit"],
+    choices: ["Nova requisição", "Listar as requisições", "Exit"],
   },
 ];
 
-function main() {
-  inquirer.prompt(menu).then((answers) => {
+async function main() {
+  inquirer.prompt(menu).then(async (answers) => {
     switch (answers.choice) {
       case "Nova requisição":
-        pedidos();
+        await reqs.pedidos();
         break;
       case "Listar as requisições":
-        console.log("Você escolheu  as  requisições.");
-        console.log(requisicoes);
+        await reqs.listarrequisicoes(); 
+        await reqs.exibirMenuPrincipal()
         break;
-      case "exit":
+      case "Exit":
+        console.log("Saindo do programa.");
+        process.exit(0);
         break;
     }
   });
 }
+
 export default main;
