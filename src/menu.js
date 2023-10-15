@@ -17,8 +17,8 @@ async function main() {
         await reqs.pedidos();
         break;
       case "Listar as requisições":
-        await reqs.listarrequisicoes(); 
-        await reqs.exibirMenuPrincipal()
+        await reqs.listarrequisicoes();
+        await reqs.exibirMenuPrincipal();
         break;
       case "Exit":
         console.log("Saindo do programa.");

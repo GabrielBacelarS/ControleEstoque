@@ -24,8 +24,8 @@ const cliente = bd.define("controles", {
   concluida: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: false
-  }
+    defaultValue: false,
+  },
 });
 
 function calcularValorTotal(quantidade) {
@@ -78,17 +78,17 @@ async function pedidos() {
       quantidade: quantidadeRequerida,
     });
 
-    console.log(
-      "Pedido confirmado e dados inseridos no banco de dados com sucesso!"
-    );
+    console.log("Pedido confirmado e dados inseridos no banco de dados com sucesso!");
   } else {
-    console.log("Pedido não confirmado, Ou materia prima Insuficientes, entre em contato com o suporte ");
+    console.log(
+      "Pedido não confirmado, ou matéria-prima insuficiente. Entre em contato com o suporte."
+    );
   }
 }
 
 async function listarrequisicoes() {
   try {
-    await bd.sync()
+    await bd.sync();
     const requisicoes = await cliente.findAll();
 
     if (requisicoes.length === 0) {
@@ -100,7 +100,7 @@ async function listarrequisicoes() {
         console.log(`Produto: ${requisicao.nomeProduto}`);
         console.log(`Data de Entrega: ${requisicao.dataEntrega}`);
         console.log(`Quantidade: ${requisicao.quantidade}`);
-        console.log(`Concluida: ${requisicao.concluida}`);
+        console.log(`Concluída: ${requisicao.concluida}`);
         console.log("-----------------------");
       });
     }
@@ -109,10 +109,40 @@ async function listarrequisicoes() {
   }
 }
 
-async function marcarComoConcluida(id) {
+async function marcarComoConcluida() {
   try {
-    await cliente.update({ concluida: true }, { where: { id } });
-    console.log(`Pedido com ID ${id} marcado como concluído.`);
+    const perguntas = [
+      {
+        type: "input",
+        name: "id",
+        message: "Digite o ID do pedido que deseja marcar como concluído:",
+      },
+    ];
+
+    const respostaId = await inquirer.prompt(perguntas);
+    const id = parseInt(respostaId.id);
+
+    const pedido = await cliente.findByPk(id);
+
+    if (!pedido) {
+      console.log("Pedido não encontrado com o ID informado.");
+      return;
+    }
+
+    const perguntaConfirmacao = {
+      type: "confirm",
+      name: "Confirmar",
+      message: `Deseja marcar o pedido ID: ${id} como concluído?`,
+    };
+
+    const respostaConfirmacao = await inquirer.prompt(perguntaConfirmacao);
+
+    if (respostaConfirmacao.Confirmar) {
+      await cliente.update({ concluida: true }, { where: { id } });
+      console.log(`Pedido com ID ${id} marcado como concluído.`);
+    } else {
+      console.log("Marcação como concluído cancelada.");
+    }
   } catch (error) {
     console.error("Erro ao marcar o pedido como concluído:", error);
   }
@@ -124,40 +154,25 @@ async function exibirMenuPrincipal() {
       type: "list",
       name: "choice",
       message: "Escolha uma opção:",
-      choices: ["Nova requisição", "Listar as requisições", "Exit"],
+      choices: ["Nova requisição", "Listar as requisições", "Marcar como Concluída", "Exit"],
     }];
 
-    await inquirer.prompt(menu).then(async (answers) => {
-      switch (answers.choice) {
-        case "Nova requisição":
-          await pedidos();
-          break;
-        case "Listar as requisições":
-          await listarrequisicoes();
-          await exibirMenuListarRequisicoes();
-          break;
-        case "Exit":
-          console.log("Saindo do programa.");
-          process.exit(0);
-      }
-    });
-  }
-
-
-async function exibirMenuListarRequisicoes() {
-  let continuarPrograma = true;
-  do {
-    const perguntaContinuar = [
-      {
-        type: "confirm",
-        name: "continuar",
-        message: "Deseja marcar outro pedido como concluído?",
-      }];
-  
-    const respostaContinuar = await inquirer.prompt(perguntaContinuar);
-    continuarPrograma = respostaContinuar.continuar;
-  
-  } while (continuarPrograma);
+  await inquirer.prompt(menu).then(async (answers) => {
+    switch (answers.choice) {
+      case "Nova requisição":
+        await pedidos();
+        break;
+      case "Listar as requisições":
+        await listarrequisicoes();
+        break;
+      case "Marcar como Concluída":
+        await marcarComoConcluida();
+        break;
+      case "Exit":
+        console.log("Saindo do programa.");
+        process.exit(0);
+    }
+  });
 }
 
 export default { listarrequisicoes, pedidos, exibirMenuPrincipal };
