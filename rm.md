@@ -18,3 +18,5 @@ erros?
 mande mensagem (92) 991377622
 
 projeto demo com estrutura basica
+
+obs: quantidades maiores que 100 irá  voltar um console.log("Materia insuficiente)  coloquei um limit para que seja um exemplo de uma futura logica onde o sistema pegue os dados do Banco de dados
